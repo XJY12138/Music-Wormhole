@@ -1,44 +1,46 @@
 ```
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.env
-.env.local
-.env.*
-.python-version
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+pubspec.lock
 
-# Rust
-target/
-Cargo.lock
+# Build
+build/
+*.apk
+*.aab
+*.ipa
+*.app
 
-# Dependencies
-node_modules/
+# Android
+android/.gradle
+android/local.properties
+android/app/build/
+android/build/
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcworkspace
+xcuserdata/
 
 # Logs
 *.log
+**/logs
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
 
-# Editor files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
 
-# Build artifacts
-dist/
-build/
+# OS
+.DS_Store
+Thumbs.db
 ```
