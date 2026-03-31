@@ -1,268 +1,221 @@
-# 🎵 Audio Sync Share - 跨平台音频同步共享系统
+# Audio Sync Share
 
-一个基于 **Rust** 后端和 **Flutter** 前端的现代化音频同步共享应用，让您可以在多个设备上同时播放音频，实现完美的音频同步体验。
+跨平台低延迟音频同步共享系统 - 支持任意设备作为服务端或客户端
 
-## ✨ 核心特性
+## 特性
 
-### 🔥 高性能 Rust 后端
-- **超低延迟** - 原生编译，零运行时开销，微秒级延迟
-- **内存安全** - Rust 的所有权系统保证无数据竞争
-- **跨平台** - Windows / macOS / Linux 全支持
-- **低资源占用** - CPU < 2%, 内存 ~20MB
+### 🎯 核心功能
+- **任意设备可作服务端/客户端**: 电脑、手机均可作为音频发送端或接收端
+- **实时同步**: PTP 时间同步算法，毫秒级延迟
+- **智能音频捕获**: 支持全局系统音频或指定应用音频
+- **跨平台**: Windows、macOS、Linux、Android、iOS
+- **低性能需求**: Rust 编写，CPU <2%，内存 ~20MB
 
-### 📱 现代化 Flutter 前端
-- **Material Design 3** - 遵循最新设计规范
-- **深色主题** - 优雅的渐变界面
-- **流畅动画** - 丝滑的过渡效果
-- **响应式布局** - 适配各种屏幕尺寸
+### 🖥️ PC 桌面应用 (Tauri)
+- 现代化 UI 界面，深色主题
+- 一键切换服务端/客户端模式
+- mDNS 自动设备发现
+- 实时延迟监控
+- 媒体控制（播放/暂停/音量）
 
-### 🎯 功能亮点
-- ✅ 实时音频捕获（全局/应用级别）
-- ✅ 局域网设备自动发现 (mDNS)
-- ✅ 多设备同步播放
-- ✅ 媒体控制（播放/暂停/音量等）
-- ✅ 可调节同步偏移
-- ✅ 选择性音源截取
+### 📱 移动端应用 (Flutter)
+- Material Design 3 设计
+- 优雅渐变界面 + 流畅动画
+- 完整的设备发现/连接/控制流程
 
-## 🏗️ 项目结构
+## 项目结构
 
 ```
 audio-sync-share/
-├── core/                    # Rust 核心库
-│   ├── lib.rs              # 核心模块导出
-│   ├── audio_capture.rs    # 音频捕获
-│   ├── audio_player.rs     # 音频播放
-│   ├── network.rs          # 网络通信
-│   ├── sync.rs             # 同步算法
-│   └── bin/
-│       ├── sender.rs       # 发送端
-│       └── receiver.rs     # 接收端
-├── flutter_app/            # Flutter 移动端应用
-│   ├── lib/
-│   │   ├── main.dart       # 应用入口
-│   │   ├── models/         # 数据模型
-│   │   ├── screens/        # 页面
-│   │   ├── services/       # 服务层
-│   │   └── widgets/        # UI 组件
-│   ├── android/            # Android 原生代码
-│   └── pubspec.yaml        # Flutter 依赖
-├── Cargo.toml              # Rust 依赖配置
-└── README.md               # 项目说明
+├── src/                    # Rust 核心库
+│   ├── lib.rs             # 主引擎入口
+│   ├── device.rs          # 设备管理
+│   ├── audio_capture.rs   # 音频捕获
+│   ├── audio_player.rs    # 音频播放
+│   ├── network.rs         # 网络通信
+│   ├── sync.rs            # 同步算法
+│   ├── media_control.rs   # 媒体控制
+│   └── config.rs          # 配置管理
+├── src-tauri/              # Tauri 桌面应用
+│   ├── src/main.rs        # Tauri 主程序
+│   ├── Cargo.toml         # Tauri 依赖
+│   └── tauri.conf.json    # Tauri 配置
+├── public/                 # Web UI
+│   └── index.html         # 桌面应用界面
+├── flutter_app/            # Flutter 移动应用
+│   └── lib/               # Dart 源码
+├── Cargo.toml              # Rust 项目配置
+└── README.md
 ```
 
-## 🚀 快速开始
+## 快速开始
 
 ### 环境要求
 
-**Rust 后端:**
-- Rust >= 1.75.0
-- Cargo
+- Rust 1.70+
+- Node.js 18+ (可选，用于开发)
+- Flutter 3.0+ (移动端)
+- Tauri CLI
 
-**Flutter 前端:**
-- Flutter SDK >= 3.0.0
-- Dart SDK >= 3.0.0
-- Android Studio / VS Code
+### 安装 Tauri CLI
 
-### 安装步骤
-
-#### 1. 克隆项目
 ```bash
-git clone https://github.com/your-repo/audio-sync-share.git
+cargo install tauri-cli
+```
+
+### 构建桌面应用
+
+```bash
 cd audio-sync-share
+
+# 开发模式
+cargo tauri dev
+
+# 生产构建
+cargo tauri build
 ```
 
-#### 2. 构建 Rust 后端
+构建完成后，可执行文件位于：
+- Windows: `src-tauri/target/release/audio-sync-app.exe`
+- macOS: `src-tauri/target/release/bundle/macos/Audio Sync Share.app`
+- Linux: `src-tauri/target/release/bundle/deb/audio-sync-share_*.deb`
 
-```bash
-# 开发版本
-cargo build
-
-# 发布版本（优化）
-cargo build --release
-
-# 运行发送端
-cargo run --bin sender -- --name "My-PC"
-
-# 运行接收端
-cargo run --bin receiver -- --host <sender-ip>
-```
-
-#### 3. 运行 Flutter 应用
+### 构建移动端应用
 
 ```bash
 cd flutter_app
 
-# 安装依赖
+# 获取依赖
 flutter pub get
 
-# 运行应用（连接设备后）
+# 运行
 flutter run
 
-# 构建 Release APK
-flutter build apk --release
+# 构建 APK
+flutter build apk
+
+# 构建 iOS
+flutter build ios
 ```
 
-## 📖 使用指南
+## 使用方法
 
-### 场景一：电脑 → 手机/音箱
+### 桌面应用
 
-1. **在电脑上启动发送端**
-```bash
-./target/release/sender --name "Living-Room-PC"
-```
+1. **启动应用**: 双击运行构建的应用程序
+2. **设置设备名称**: 在设置卡片中输入您的设备名称
+3. **选择模式**:
+   - **服务端模式**: 点击"启动服务端"开始发送音频
+   - **客户端模式**: 点击"切换角色"，然后输入服务器地址或使用设备发现
+4. **设备发现**: 点击"扫描设备"查找局域网内的其他设备
+5. **连接**: 点击设备列表中的"连接"按钮快速连接
 
-2. **打开手机上的 Audio Sync Share 应用**
-- 应用会自动发现局域网内的设备
-- 点击发现的电脑设备
-- 点击"Connect"建立连接
-
-3. **开始同步播放**
-- 连接成功后，底部会出现播放控制面板
-- 可以调节音量、同步偏移等参数
-
-### 场景二：多房间音频
-
-1. 在主设备上运行发送端
-2. 在各个房间的设备上运行接收端
-3. 所有接收端连接到同一个发送端
-4. 享受全屋同步的音乐体验！
-
-## ⚙️ 配置选项
-
-### Rust 后端参数
+### 命令行使用 (开发)
 
 ```bash
-# 发送端
-sender [OPTIONS]
-  --name <NAME>          设备名称（用于 mDNS 发现）
-  --port <PORT>          监听端口（默认：8080）
-  --bitrate <BITRATE>    音频比特率（默认：320kbps）
-  --sample-rate <RATE>   采样率（默认：48000Hz）
-  --app <APP_NAME>       只捕获指定应用（可选）
-  --all-apps             捕获所有系统音频（默认）
+# 构建核心库
+cargo build --release
 
-# 接收端
-receiver [OPTIONS]
-  --host <HOST>          发送端 IP 地址
-  --port <PORT>          发送端端口（默认：8080）
-  --buffer <SIZE>        缓冲大小（默认：512）
-  --sync-offset <MS>     同步偏移毫秒数（默认：0）
+# 运行测试
+cargo test
 ```
 
-### Flutter 应用设置
+## API 说明
 
-在应用内可以调整：
-- **Volume** - 音量大小
-- **Sync** - 同步偏移（解决网络延迟导致的不同步）
-- **Source** - 音源选择（全部应用/特定应用）
+### Tauri Commands
 
-## 🔬 技术细节
+| 命令 | 参数 | 返回值 | 说明 |
+|------|------|--------|------|
+| `initialize_app` | `device_name: String` | `Result<(), String>` | 初始化应用 |
+| `get_app_state` | - | `AppState` | 获取当前状态 |
+| `start_server` | - | `Result<(), String>` | 启动服务端 |
+| `start_client` | `server_address: String` | `Result<(), String>` | 启动客户端 |
+| `toggle_role` | - | `String` | 切换角色 |
+| `scan_devices` | - | `Vec<DeviceInfoDto>` | 扫描设备 |
+| `stop_service` | - | `Result<(), String>` | 停止服务 |
 
-### 音频同步算法
+### AppState 结构
 
-采用 **PTP (Precision Time Protocol)** 类似的时间同步机制：
+```rust
+pub struct AppState {
+    pub device_name: String,
+    pub role: String,           // "server" 或 "client"
+    pub is_running: bool,
+    pub connected_device: Option<String>,
+    pub latency_ms: f64,
+    pub available_devices: Vec<DeviceInfoDto>,
+}
+```
 
-1. **时间戳对齐** - 每个音频包携带发送时间戳
-2. **网络延迟估算** - RTT 测量和补偿
-3. **动态缓冲** - 根据网络状况自适应调整缓冲区
-4. **时钟漂移校正** - 持续监控并校正采样率差异
+### DeviceInfoDto 结构
+
+```rust
+pub struct DeviceInfoDto {
+    pub name: String,
+    pub address: String,
+    pub port: u16,
+    pub is_server: bool,
+}
+```
+
+## 技术细节
+
+### 音频处理
+- **采样率**: 48kHz (可配置)
+- **位深**: 16-bit
+- **声道**: 立体声
+- **缓冲区**: 256 样本 (约 5ms 延迟)
 
 ### 网络协议
+- **传输**: UDP (低延迟)
+- **发现**: mDNS/Bonjour
+- **同步**: PTP (Precision Time Protocol)
 
-- **mDNS** - 设备发现（端口 5353）
-- **UDP** - 音频数据传输（低延迟）
-- **TCP** - 控制命令传输（可靠性）
+### 性能指标
+- **延迟**: <10ms (局域网)
+- **CPU**: <2%
+- **内存**: ~20MB
+- **带宽**: ~1.5Mbps (立体声 48kHz)
 
-### 音频处理流程
+## 故障排除
 
-```
-[音频源] → [捕获] → [编码] → [网络传输] → [解码] → [播放]
-              ↓                        ↓
-          [时间戳]                [同步校正]
-```
+### 常见问题
 
-## 🛠️ 开发指南
+1. **无法发现设备**
+   - 确保所有设备在同一局域网
+   - 检查防火墙设置，允许 UDP 端口
+   - 确认 mDNS 服务正常运行
 
-### 添加新功能
+2. **音频不同步**
+   - 调整缓冲区大小
+   - 检查网络延迟
+   - 重新校准时间同步
 
-1. **Rust 后端**
-```rust
-// 在 core/lib.rs 中导出新模块
-pub mod your_new_module;
+3. **应用崩溃**
+   - 检查音频设备权限
+   - 更新声卡驱动
+   - 查看日志文件
 
-// 实现功能
-// ...
-```
+### 日志
 
-2. **Flutter 前端**
-```dart
-// 添加新的 Service
-class YourService extends ChangeNotifier {
-  // ...
-}
-
-// 在 main.dart 中注册 Provider
-ChangeNotifierProvider(create: (_) => YourService()),
-```
-
-### 调试技巧
-
-**Rust:**
 ```bash
-# 启用详细日志
-RUST_LOG=debug cargo run --bin sender
-
-# 性能分析
-cargo flamegraph --bin sender
+# 设置日志级别
+RUST_LOG=debug cargo tauri dev
 ```
 
-**Flutter:**
-```bash
-# 启用详细日志
-flutter run --verbose
+## 开发计划
 
-# 性能分析
-flutter devtools
-```
+- [ ] 多设备同步 (一对多)
+- [ ] 音频质量调节
+- [ ] EQ 均衡器
+- [ ] 录音功能
+- [ ] 蓝牙设备支持
+- [ ] WebRTC 远程同步
 
-## 📊 性能对比
+## 许可证
 
-| 指标 | Rust 实现 | Python 实现 |
-|------|-----------|-------------|
-| 延迟 | < 10ms | 50-200ms |
-| CPU 占用 | ~2% | 15-30% |
-| 内存占用 | ~20MB | 100-200MB |
-| 启动时间 | < 0.1s | 1-3s |
+MIT License
 
-## 🤝 贡献
+## 贡献
 
-欢迎贡献代码！请遵循以下步骤：
-
-1. Fork 本项目
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 提交 Pull Request
-
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 🙏 致谢
-
-感谢以下开源项目：
-- [cpal](https://github.com/RustAudio/cpal) - 跨平台音频 I/O
-- [Flutter](https://flutter.dev) - 现代化 UI 框架
-- [tokio](https://tokio.rs) - 异步运行时
-
----
-
-**开发团队**: Audio Sync Share Team  
-**版本**: 1.0.0  
-**最后更新**: 2024
-
-## 📞 联系方式
-
-- Email: support@audiosyncshare.com
-- GitHub Issues: [提交问题](https://github.com/your-repo/audio-sync-share/issues)
-- Discord: [加入社区](https://discord.gg/your-invite)
+欢迎提交 Issue 和 Pull Request！

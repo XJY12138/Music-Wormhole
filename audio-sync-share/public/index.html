@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Sync Share</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            padding: 20px 30px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title .icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .status-badge.server {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            border: 1px solid rgba(0, 217, 255, 0.3);
+        }
+        
+        .status-badge.client {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-badge.server .status-dot {
+            background: #00d9ff;
+        }
+        
+        .status-badge.client .status-dot {
+            background: #00ff88;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .btn-danger {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(255, 71, 87, 0.3);
+        }
+        
+        .device-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .device-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .device-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 217, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .device-name {
+            font-weight: 500;
+        }
+        
+        .device-address {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 Audio Sync Share</h1>
+    </div>
+    
+    <div class="container">
+        <!-- 状态卡片 -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">📊</span>
+                设备状态
+            </div>
+            
+            <div id="statusBadge" class="status-badge server">
+                <span class="status-dot"></span>
+                <span id="statusText">服务端模式</span>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="latencyValue">0</div>
+                    <div class="stat-label">延迟 (ms)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="connectedValue">-</div>
+                    <div class="stat-label">连接设备</div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="toggleRole()">
+                    🔄 切换角色
+                </button>
+                <button class="btn btn-danger" onclick="stopService()">
+                    ⏹ 停止服务
+                </button>
+            </div>
+        </div>
+        
+        <!-- 设备发现卡片 -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🔍</span>
+                可用设备
+            </div>
+            
+            <button class="btn btn-primary" onclick="scanDevices()" style="margin-bottom: 15px;">
+                🔎 扫描设备
+            </button>
+            
+            <ul class="device-list" id="deviceList">
+                <li class="empty-state">
+                    <div class="empty-state-icon">📡</div>
+                    <div>点击"扫描设备"查找附近设备</div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 控制卡片 -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🎮</span>
+                控制
+            </div>
+            
+            <div id="serverControls">
+                <button class="btn btn-primary" onclick="startServer()">
+                    ▶ 启动服务端
+                </button>
+            </div>
+            
+            <div id="clientControls" style="display: none;">
+                <div class="input-group">
+                    <label>服务器地址</label>
+                    <input type="text" id="serverAddress" placeholder="例如：192.168.1.100">
+                </div>
+                <button class="btn btn-primary" onclick="startClient()">
+                    🔗 连接到服务器
+                </button>
+            </div>
+        </div>
+        
+        <!-- 设置卡片 -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">⚙️</span>
+                设置
+            </div>
+            
+            <div class="input-group">
+                <label>设备名称</label>
+                <input type="text" id="deviceName" placeholder="我的设备" value="My-Device">
+            </div>
+            
+            <button class="btn btn-secondary" onclick="initializeApp()">
+                💾 保存设置
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        const { invoke } = window.__TAURI__.tauri;
+        
+        async function initializeApp() {
+            const deviceName = document.getElementById('deviceName').value;
+            try {
+                await invoke('initialize_app', { deviceName });
+                updateState();
+            } catch (error) {
+                alert('初始化失败：' + error);
+            }
+        }
+        
+        async function updateState() {
+            try {
+                const state = await invoke('get_app_state');
+                updateUI(state);
+            } catch (error) {
+                console.error('获取状态失败:', error);
+            }
+        }
+        
+        function updateUI(state) {
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const serverControls = document.getElementById('serverControls');
+            const clientControls = document.getElementById('clientControls');
+            
+            if (state.role === 'server') {
+                statusBadge.className = 'status-badge server';
+                statusText.textContent = '服务端模式';
+                serverControls.style.display = 'block';
+                clientControls.style.display = 'none';
+            } else {
+                statusBadge.className = 'status-badge client';
+                statusText.textContent = '客户端模式';
+                serverControls.style.display = 'none';
+                clientControls.style.display = 'block';
+            }
+            
+            document.getElementById('latencyValue').textContent = state.latency_ms.toFixed(1);
+            document.getElementById('connectedValue').textContent = state.connected_device || '-';
+        }
+        
+        async function toggleRole() {
+            try {
+                const newRole = await invoke('toggle_role');
+                updateState();
+            } catch (error) {
+                alert('切换失败：' + error);
+            }
+        }
+        
+        async function startServer() {
+            try {
+                await invoke('start_server');
+                updateState();
+            } catch (error) {
+                alert('启动服务端失败：' + error);
+            }
+        }
+        
+        async function startClient() {
+            const address = document.getElementById('serverAddress').value;
+            if (!address) {
+                alert('请输入服务器地址');
+                return;
+            }
+            try {
+                await invoke('start_client', { serverAddress: address });
+                updateState();
+            } catch (error) {
+                alert('连接失败：' + error);
+            }
+        }
+        
+        async function scanDevices() {
+            try {
+                const devices = await invoke('scan_devices');
+                renderDeviceList(devices);
+            } catch (error) {
+                alert('扫描失败：' + error);
+            }
+        }
+        
+        function renderDeviceList(devices) {
+            const list = document.getElementById('deviceList');
+            
+            if (devices.length === 0) {
+                list.innerHTML = `
+                    <li class="empty-state">
+                        <div class="empty-state-icon">📡</div>
+                        <div>未发现设备</div>
+                    </li>
+                `;
+                return;
+            }
+            
+            list.innerHTML = devices.map(device => `
+                <li class="device-item">
+                    <div class="device-info">
+                        <div class="device-icon">${device.is_server ? '🖥' : '📱'}</div>
+                        <div>
+                            <div class="device-name">${device.name}</div>
+                            <div class="device-address">${device.address}:${device.port}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="connectToDevice('${device.address}')">
+                        连接
+                    </button>
+                </li>
+            `).join('');
+        }
+        
+        function connectToDevice(address) {
+            document.getElementById('serverAddress').value = address;
+            startClient();
+        }
+        
+        async function stopService() {
+            try {
+                await invoke('stop_service');
+                updateState();
+            } catch (error) {
+                alert('停止失败：' + error);
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            // 定期更新状态
+            setInterval(updateState, 2000);
+        });
+    </script>
+</body>
+</html>

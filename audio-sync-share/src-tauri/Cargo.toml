@@ -1,0 +1,25 @@
+[package]
+name = "audio-sync-app"
+version = "0.1.0"
+description = "Audio Sync Share Desktop Application"
+authors = ["Audio Sync Share Team"]
+license = "MIT"
+repository = ""
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.6", features = ["shell-open", "api-all"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+audio_sync_share = { path = ".." }
+tokio = { version = "1", features = ["full"] }
+log = "0.4"
+env_logger = "0.11"
+anyhow = "1.0"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

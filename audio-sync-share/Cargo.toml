@@ -34,6 +34,9 @@ clap = { version = "4.4", features = ["derive"] }
 chrono = "0.4"
 ringbuf = "0.4"        # Lock-free ring buffer for low-latency
 
+# Tauri for desktop UI
+tauri = { version = "1.6", features = ["api-all"] }
+
 # Platform-specific
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = [
@@ -56,10 +59,10 @@ lto = true
 codegen-units = 1
 strip = true
 
-[[bin]]
-name = "sender"
-path = "src/bin/sender.rs"
+[lib]
+name = "audio_sync_share"
+path = "src/lib.rs"
 
 [[bin]]
-name = "receiver"
-path = "src/bin/receiver.rs"
+name = "audio-sync-app"
+path = "src-tauri/src/main.rs"
