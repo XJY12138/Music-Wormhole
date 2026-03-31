@@ -1,0 +1,65 @@
+[package]
+name = "audio_sync_share"
+version = "0.1.0"
+edition = "2021"
+description = "Cross-platform low-latency audio streaming and synchronization system"
+license = "MIT"
+
+[dependencies]
+# Audio processing
+cpal = "0.15"          # Cross-platform audio I/O
+hound = "3.5"          # WAV file handling
+rubato = "0.15"        # High-quality sample rate conversion
+
+# Networking
+tokio = { version = "1.35", features = ["full"] }
+udp-stream = "0.6"
+if-addrs = "0.13"      # Network interface discovery
+mdns-sd = "0.11"       # mDNS service discovery
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+
+# System media control
+enigo = "0.2"          # Cross-platform input control
+
+# Utilities
+anyhow = "1.0"
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.11"
+clap = { version = "4.4", features = ["derive"] }
+chrono = "0.4"
+ringbuf = "0.4"        # Lock-free ring buffer for low-latency
+
+# Platform-specific
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Media_Audio",
+    "Win32_Foundation",
+    "Win32_System_Threading"
+]}
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation = "0.10"
+core-audio = "0.1"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+alsa = "0.9"
+nix = { version = "0.29", features = ["pulse"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[[bin]]
+name = "sender"
+path = "src/bin/sender.rs"
+
+[[bin]]
+name = "receiver"
+path = "src/bin/receiver.rs"
