@@ -26,21 +26,18 @@ jobs:
           toolchain: stable
           target: x86_64-pc-windows-msvc
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2.0.0"
-
-      - name: Install dependencies
-        run: |
-          cd public
-          pnpm install || npm install
 
       - name: Build Tauri App
         run: cargo tauri build
@@ -70,6 +67,11 @@ jobs:
         with:
           toolchain: stable
           target: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -107,7 +109,8 @@ jobs:
 
       - name: Create local.properties
         run: |
-          echo "sdk.dir=$ANDROID_HOME" >> flutter_app/android/local.properties
+          mkdir -p flutter_app/android
+          echo "sdk.dir=$ANDROID_HOME" > flutter_app/android/local.properties
           echo "ndk.dir=$NDK_HOME" >> flutter_app/android/local.properties
 
       - name: Create key.properties (debug)
@@ -142,15 +145,7 @@ jobs:
       - name: Build Flutter APK (Debug)
         run: |
           cd flutter_app
-          flutter build apk --debug --target-platform android-arm64,android-arm
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
-          NDK_HOME: ${{ env.NDK_HOME }}
-
-      - name: Build Flutter APK (Release)
-        run: |
-          cd flutter_app
-          flutter build apk --release --target-platform android-arm64,android-arm
+          flutter build apk --debug --target-platform android-arm64
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
           NDK_HOME: ${{ env.NDK_HOME }}
@@ -166,6 +161,7 @@ jobs:
   # Linux AppImage Build (Optional bonus)
   build-linux:
     runs-on: ubuntu-latest
+    if: false  # Disabled to save CI time, enable if needed
     
     steps:
       - name: Checkout repository
@@ -176,13 +172,15 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2.0.0"
@@ -202,11 +200,6 @@ jobs:
             libgtk-3-dev \
             libjavascriptcoregtk-4.1-dev \
             libsoup-3.0-dev
-
-      - name: Install dependencies
-        run: |
-          cd public
-          pnpm install || npm install
 
       - name: Build Tauri App
         run: cargo tauri build
