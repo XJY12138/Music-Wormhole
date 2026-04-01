@@ -137,6 +137,14 @@ jobs:
               -dname "CN=Audio Sync Share, OU=Development, O=AudioSync, L=Unknown, ST=Unknown, C=US"
           fi
 
+      - name: Setup Flutter dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('flutter_app/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
       - name: Get Flutter dependencies
         run: |
           cd flutter_app
